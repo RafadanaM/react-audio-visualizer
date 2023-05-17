@@ -1,0 +1,28 @@
+.volumeContainer {
+    display: flex;
+    align-items: center;
+}
+
+.volumeContainer button {
+    padding: 0.25rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+
+}
+
+.volumeContainer button::before {
+    position: absolute;
+    content: " ";
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF;
+    opacity: 0;
+    border-radius: 100%;
+    transition: opacity 250ms ease-in-out;
+}
+
+.volumeContainer button:hover::before {
+    opacity: 0.3;
+}

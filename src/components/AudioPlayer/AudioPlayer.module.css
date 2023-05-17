@@ -1,0 +1,89 @@
+.player {
+    width: 100%;
+    z-index: 1;
+    max-width: 50rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    display: grid;
+    grid-template-rows: auto) 1fr auto;
+    grid-template-columns: 192px minmax(0, 1fr);
+
+    grid-template-areas:
+        "cover info"
+        "cover ."
+        "cover controls";
+
+    gap: 1rem;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cover {
+    grid-area: cover;
+    aspect-ratio: 1/1;
+    background: url("../../assets/cover.jpg") no-repeat center;
+    background-size: cover;
+    border-radius: 0.5rem;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+}
+
+.info {
+    grid-area: info;
+    color: #FFFFFF;
+
+}
+
+.info span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.album {
+    font-size: 1.125rem;
+}
+
+.controls {
+    grid-area: controls;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.controlsRight {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.controlButton {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+}
+
+.controlButton::before {
+    border-radius: 100%;
+    content: " ";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #FFFFFF;
+    opacity: 0;
+    transition: opacity 250ms ease-in-out;
+}
+
+.controlButton:hover::before {
+    opacity: 0.2;
+}

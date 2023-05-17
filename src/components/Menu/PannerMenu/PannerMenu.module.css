@@ -1,0 +1,25 @@
+.pannerMenuSlider {
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+}
+
+.pannerMenuSlider input {
+    width: 200px;
+}
+
+.pannerMenuIndicator {
+    display: flex;
+    align-items: center;
+}
+
+.percentage {
+    font-size: 0.875rem;
+    color: #FFFFFF;
+}
+
+.reset {
+    cursor: pointer;
+}

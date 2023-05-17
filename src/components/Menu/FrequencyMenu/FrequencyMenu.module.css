@@ -1,0 +1,15 @@
+.name {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+}
+
+.name svg {
+    cursor: pointer;
+}
+
+.name:first-child {
+    margin-top: 0;
+}

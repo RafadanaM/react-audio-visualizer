@@ -1,0 +1,54 @@
+.main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 0 1rem;
+    background-image: url("./assets/background.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+
+}
+
+.upload {
+    color: #FFFFFF;
+    cursor: pointer;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: background 250ms ease-in-out;
+}
+
+.upload:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.upload input[type="file"] {
+    display: none;
+}
+
+.upload.initial {
+    padding: 1.5rem;
+    border-radius: 1rem;
+}
+
+.upload.full {
+    position: relative;
+    /* z-index: -1; */
+    width: 100%;
+    max-width: 50rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.upload.full svg {
+    margin: 0 auto;
+}

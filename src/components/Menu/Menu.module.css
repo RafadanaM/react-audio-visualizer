@@ -1,0 +1,54 @@
+.menuContainer {
+    position: relative;
+}
+
+.menuContent {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, calc(100% + 1rem));
+    flex-direction: column;
+    align-items: center;
+    color: #FFFFFF;
+    padding: 0.25rem 0.5rem;
+    z-index: 10;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.39);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.menuContent.show {
+    display: flex;
+}
+
+.menuContent.hide {
+    display: none;
+}
+
+.menuButton {
+    padding: 0.25rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+
+}
+
+.menuButton::before {
+    position: absolute;
+    content: " ";
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF;
+    opacity: 0;
+    border-radius: 100%;
+    transition: opacity 250ms ease-in-out;
+}
+
+.menuButton:hover::before {
+    opacity: 0.3;
+}
