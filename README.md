@@ -3,7 +3,7 @@ Web audio player made with React with the ability to apply audio effects and vis
 
 A mini project to learn Web Audio API in react.
 
-Project can be accessed [here.](https://www.example.com)
+Project can be accessed [here.](https://react-audio-visualizer.vercel.app/)
 
 ## Filters/Effects
 - Gain
