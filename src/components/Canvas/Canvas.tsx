@@ -31,7 +31,7 @@ function Canvas({ draw }: ICanvas) {
       if (canvasRef.current === null) return;
 
       canvasRef.current.width = window.innerWidth;
-      canvasRef.current.height = 400;
+      canvasRef.current.height = 500;
       if (frameId.current) {
         window.cancelAnimationFrame(frameId.current);
       }

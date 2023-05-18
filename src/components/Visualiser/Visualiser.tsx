@@ -118,22 +118,6 @@ function Visualiser({
             ctx.lineTo(x, y);
           }
         }
-        // dataArrayL.current.forEach((value, idx) => {
-        //   // multiply the idx with the slice width to get the x coordinate
-        //   const x = idx * sliceWidth;
-
-        //   // divide the data point(value variable) point by 128 to half it (because the data point is 8 bit unsigned integer -> max 256) so result is always between 0 to 2 inclusive
-        //   // then multiply the result by half of the height to get the y coordinate on the canvas
-        //   const y = (value / 128.0) * (canvasHeight / 2);
-
-        //   // just move to x,y if first iteration, else draw a line
-        //   if (idx === 0) {
-        //     ctx.moveTo(x, y);
-        //   } else {
-        //     ctx.lineTo(x, y);
-        //   }
-        // });
-
         ctx.lineTo(canvasWidth, canvasHeight / 2);
         ctx.stroke();
       }
