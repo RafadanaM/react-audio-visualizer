@@ -6,7 +6,7 @@ A mini project to learn Web Audio API in react.
 Project can be accessed [here.](https://react-audio-visualizer.vercel.app/)
 
 ## Filters/Effects
-- Gain
+- Gain(Volume)
 - Distortion
 - Stereo Pan
 - Bass 

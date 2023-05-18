@@ -3,43 +3,59 @@ import Canvas from "../Canvas/Canvas";
 
 interface IVisualiser {
   isAudioPlaying: boolean;
-  analyserNode: AnalyserNode | null;
+  analyserNodeL: AnalyserNode | null;
+  analyserNodeR: AnalyserNode | null;
   visualiserType: string;
 }
 
 function Visualiser({
-  analyserNode,
+  analyserNodeL,
+  analyserNodeR,
   isAudioPlaying,
   visualiserType,
 }: IVisualiser) {
   // create array of unsigned 8 bit integer with length equal to the bufferLength
-  const dataArray = useRef<Uint8Array | null>(null);
+  const dataArrayL = useRef<Uint8Array | null>(null);
+  const dataArrayR = useRef<Uint8Array | null>(null);
 
   useEffect(() => {
-    if (analyserNode === null) return;
+    if (analyserNodeL === null) return;
+    if (analyserNodeR === null) return;
     if (visualiserType === "bar") {
-      analyserNode.fftSize = 512;
+      analyserNodeL.fftSize = 512;
+      analyserNodeR.fftSize = 512;
     } else {
-      analyserNode.fftSize = 2048;
+      analyserNodeL.fftSize = 2048;
+      analyserNodeR.fftSize = 2048;
     }
 
-    dataArray.current = new Uint8Array(analyserNode.frequencyBinCount).fill(
+    dataArrayL.current = new Uint8Array(analyserNodeL.frequencyBinCount).fill(
       visualiserType === "bar" ? 0 : 128
     );
-  }, [analyserNode, visualiserType]);
+
+    dataArrayR.current = new Uint8Array(analyserNodeR.frequencyBinCount).fill(
+      visualiserType === "bar" ? 0 : 128
+    );
+  }, [analyserNodeL, analyserNodeR, visualiserType]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      if (analyserNode === null) return false;
-      if (dataArray.current === null) return false;
+      if (analyserNodeL === null) return false;
+      if (dataArrayL.current === null) return false;
+      if (analyserNodeR === null) return false;
+      if (dataArrayR.current === null) return false;
 
       const canvasWidth = ctx.canvas.width;
       const canvasHeight = ctx.canvas.height;
-      const bufferLength = analyserNode.frequencyBinCount;
+
+      const bufferLengthL = analyserNodeL.frequencyBinCount;
+      const bufferLengthR = analyserNodeR.frequencyBinCount;
+      if (bufferLengthL !== bufferLengthR) return false;
 
       if (visualiserType === "bar") {
         if (isAudioPlaying) {
-          analyserNode.getByteFrequencyData(dataArray.current);
+          analyserNodeL.getByteFrequencyData(dataArrayL.current);
+          analyserNodeR.getByteFrequencyData(dataArrayR.current);
         }
 
         // clear the canvas
@@ -48,21 +64,29 @@ function Visualiser({
         // define properties of canvas
         ctx.fillStyle = "rgba(255,255,255, 0.5)";
 
-        const barWidth = (canvasWidth / bufferLength) * 2.5;
+        const barWidth = (canvasWidth / bufferLengthL) * 2.5;
+        for (let i = 0; i < bufferLengthL; i++) {
+          const valueL = dataArrayL.current[i];
+          const valueR = dataArrayR.current[i];
 
-        dataArray.current.forEach((value, idx) => {
-          // multiply the idx with the bar width to get the x coordinate
-          const x = idx * barWidth + 1;
-          const barHeight = (value / 255) * canvasHeight * 0.75;
+          const x = i * barWidth + 1;
 
-          const y = canvasHeight - barHeight;
+          // get the height of the bars and divide it by 2 since the canvas has 2 equal sections
+          const barHeightL = ((valueL / 255) * canvasHeight) / 2;
+          const barHeightR = ((valueR / 255) * canvasHeight) / 2;
 
-          ctx.fillRect(x, y, barWidth, barHeight);
-        });
+          const yL = canvasHeight / 2 - barHeightL;
+
+          ctx.fillRect(x, yL, barWidth, barHeightL);
+          ctx.fillRect(x, canvasHeight / 2, barWidth, barHeightR);
+        }
+
+        // });
       } else if (visualiserType === "line") {
         if (isAudioPlaying) {
           // put the result of getByteTimeDomainData to data array
-          analyserNode.getByteTimeDomainData(dataArray.current);
+          analyserNodeL.getByteTimeDomainData(dataArrayL.current);
+          analyserNodeR.getByteTimeDomainData(dataArrayR.current);
         }
 
         // clear the canvas
@@ -75,23 +99,40 @@ function Visualiser({
         ctx.beginPath();
 
         // set width(or distance) of each data points by dividing the data point and the data count;
-        const sliceWidth = canvasWidth / bufferLength;
+        const sliceWidth = canvasWidth / bufferLengthL;
 
-        dataArray.current.forEach((value, idx) => {
+        for (let i = 0; i < bufferLengthL; i++) {
+          const valueL = dataArrayL.current[i];
+          const valueR = dataArrayR.current[i];
+          const valueAvg = (valueL + valueR) / 2;
+
           // multiply the idx with the slice width to get the x coordinate
-          const x = idx * sliceWidth;
+          const x = i * sliceWidth;
 
           // divide the data point(value variable) point by 128 to half it (because the data point is 8 bit unsigned integer -> max 256) so result is always between 0 to 2 inclusive
           // then multiply the result by half of the height to get the y coordinate on the canvas
-          const y = (value / 128.0) * (canvasHeight / 2);
-
-          // just move to x,y if first iteration, else draw a line
-          if (idx === 0) {
+          const y = (valueAvg / 128.0) * (canvasHeight / 2);
+          if (i === 0) {
             ctx.moveTo(x, y);
           } else {
             ctx.lineTo(x, y);
           }
-        });
+        }
+        // dataArrayL.current.forEach((value, idx) => {
+        //   // multiply the idx with the slice width to get the x coordinate
+        //   const x = idx * sliceWidth;
+
+        //   // divide the data point(value variable) point by 128 to half it (because the data point is 8 bit unsigned integer -> max 256) so result is always between 0 to 2 inclusive
+        //   // then multiply the result by half of the height to get the y coordinate on the canvas
+        //   const y = (value / 128.0) * (canvasHeight / 2);
+
+        //   // just move to x,y if first iteration, else draw a line
+        //   if (idx === 0) {
+        //     ctx.moveTo(x, y);
+        //   } else {
+        //     ctx.lineTo(x, y);
+        //   }
+        // });
 
         ctx.lineTo(canvasWidth, canvasHeight / 2);
         ctx.stroke();
@@ -99,7 +140,7 @@ function Visualiser({
 
       return isAudioPlaying;
     },
-    [analyserNode, isAudioPlaying, visualiserType]
+    [analyserNodeL, analyserNodeR, isAudioPlaying, visualiserType]
   );
   return <Canvas draw={draw} />;
 }

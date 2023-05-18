@@ -11,19 +11,25 @@ function App() {
   const [selectedVisualiser, setSelectedVisualiser] = useState<string>("bar");
   const source = useRef<MediaElementAudioSourceNode | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
-  const analyserNode = useRef<AnalyserNode | null>(null);
+  const analyserNodeL = useRef<AnalyserNode | null>(null);
+  const analyserNodeR = useRef<AnalyserNode | null>(null);
   const stereoNode = useRef<StereoPannerNode | null>(null);
   const gainNode = useRef<GainNode | null>(null);
   const distortionNode = useRef<WaveShaperNode | null>(null);
   const bassNode = useRef<BiquadFilterNode | null>(null);
   const midNode = useRef<BiquadFilterNode | null>(null);
   const trebleNode = useRef<BiquadFilterNode | null>(null);
+  const splitterNode = useRef<ChannelSplitterNode | null>(null);
+  const mergerNode = useRef<ChannelMergerNode | null>(null);
   const audioEl = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (audioContext.current === null) {
       audioContext.current = new AudioContext();
-      analyserNode.current = new AnalyserNode(audioContext.current, {
+      analyserNodeL.current = new AnalyserNode(audioContext.current, {
+        fftSize: 2048,
+      });
+      analyserNodeR.current = new AnalyserNode(audioContext.current, {
         fftSize: 2048,
       });
       stereoNode.current = new StereoPannerNode(audioContext.current);
@@ -45,6 +51,14 @@ function App() {
         frequency: 4000,
         type: "lowshelf",
       });
+
+      splitterNode.current = new ChannelSplitterNode(audioContext.current, {
+        numberOfOutputs: 2,
+      });
+
+      mergerNode.current = new ChannelMergerNode(audioContext.current, {
+        numberOfInputs: 2,
+      });
     }
   }, []);
 
@@ -62,13 +76,16 @@ function App() {
 
       if (
         audioContext.current &&
-        analyserNode.current &&
+        analyserNodeL.current &&
+        analyserNodeR.current &&
         stereoNode.current &&
         gainNode.current &&
         distortionNode.current &&
         bassNode.current &&
         midNode.current &&
-        trebleNode.current
+        trebleNode.current &&
+        splitterNode.current &&
+        mergerNode.current
       ) {
         source.current.connect(stereoNode.current);
         source.current.connect(distortionNode.current);
@@ -81,10 +98,14 @@ function App() {
         bassNode.current.connect(gainNode.current);
         midNode.current.connect(gainNode.current);
         trebleNode.current.connect(gainNode.current);
+        gainNode.current.connect(splitterNode.current);
+        splitterNode.current.connect(analyserNodeL.current, 0);
+        splitterNode.current.connect(analyserNodeR.current, 1);
 
-        gainNode.current.connect(analyserNode.current);
+        analyserNodeL.current.connect(mergerNode.current, 0, 0);
+        analyserNodeR.current.connect(mergerNode.current, 0, 1);
 
-        analyserNode.current.connect(audioContext.current.destination);
+        mergerNode.current.connect(audioContext.current.destination);
       }
     }
   }
@@ -135,7 +156,8 @@ function App() {
           />
           <Visualiser
             visualiserType={selectedVisualiser}
-            analyserNode={analyserNode.current}
+            analyserNodeL={analyserNodeL.current}
+            analyserNodeR={analyserNodeR.current}
             isAudioPlaying={isAudioPlaying}
           />
 
