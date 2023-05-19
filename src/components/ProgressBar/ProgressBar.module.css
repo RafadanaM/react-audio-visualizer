@@ -1,0 +1,11 @@
+.progressContainer {
+    grid-area: progress;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #FFFFFF;
+}
+
+.progress {
+    width: 100%;
+}

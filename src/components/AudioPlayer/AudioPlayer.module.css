@@ -5,13 +5,14 @@
     padding: 1.5rem;
     border-radius: 1rem;
     display: grid;
-    grid-template-rows: auto) 1fr auto;
+    grid-template-rows: auto 1fr auto auto;
     grid-template-columns: 192px minmax(0, 1fr);
 
     grid-template-areas:
         "cover info"
         "cover ."
-        "cover controls";
+        "cover controls"
+        "progress progress";
 
     gap: 1rem;
     /* From https://css.glass */

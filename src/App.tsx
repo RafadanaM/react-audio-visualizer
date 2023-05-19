@@ -9,6 +9,8 @@ function App() {
   const [fileName, setFileName] = useState("");
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [selectedVisualiser, setSelectedVisualiser] = useState<string>("bar");
+  const [duration, setDuration] = useState(0);
+  const [isAudioEnded, setIsAudioEnded] = useState(false);
   const source = useRef<MediaElementAudioSourceNode | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
   const analyserNodeL = useRef<AnalyserNode | null>(null);
@@ -22,6 +24,7 @@ function App() {
   const splitterNode = useRef<ChannelSplitterNode | null>(null);
   const mergerNode = useRef<ChannelMergerNode | null>(null);
   const audioEl = useRef<HTMLAudioElement>(null);
+  const animationId = useRef<number | null>(null);
 
   useEffect(() => {
     if (audioContext.current === null) {
@@ -32,7 +35,9 @@ function App() {
       analyserNodeR.current = new AnalyserNode(audioContext.current, {
         fftSize: 2048,
       });
-      stereoNode.current = new StereoPannerNode(audioContext.current);
+      stereoNode.current = new StereoPannerNode(audioContext.current, {
+        pan: 0,
+      });
       gainNode.current = new GainNode(audioContext.current, {
         gain: 0.25,
       });
@@ -62,6 +67,15 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("mantap");
+
+    setIsAudioEnded((prevState) => {
+      if (prevState) return !prevState;
+      return prevState;
+    });
+  }, [isAudioEnded]);
+
   function handleVisualiserChange(e: ChangeEvent<HTMLInputElement>) {
     setSelectedVisualiser(e.target.value);
   }
@@ -87,18 +101,19 @@ function App() {
         splitterNode.current &&
         mergerNode.current
       ) {
-        source.current.connect(stereoNode.current);
+        // source.current.connect(stereoNode.current);
         source.current.connect(distortionNode.current);
         source.current.connect(bassNode.current);
         source.current.connect(midNode.current);
         source.current.connect(trebleNode.current);
 
-        stereoNode.current.connect(gainNode.current);
+        // stereoNode.current.connect(gainNode.current);
         distortionNode.current.connect(gainNode.current);
         bassNode.current.connect(gainNode.current);
         midNode.current.connect(gainNode.current);
         trebleNode.current.connect(gainNode.current);
-        gainNode.current.connect(splitterNode.current);
+        gainNode.current.connect(stereoNode.current);
+        stereoNode.current.connect(splitterNode.current);
         splitterNode.current.connect(analyserNodeL.current, 0);
         splitterNode.current.connect(analyserNodeR.current, 1);
 
@@ -115,7 +130,6 @@ function App() {
     if (audioContext.current.state === "suspended") {
       audioContext.current.resume();
     }
-
     if (isAudioPlaying) {
       audioEl.current?.pause();
     } else {
@@ -125,6 +139,10 @@ function App() {
   }
 
   function handleAudioEnded() {
+    if (animationId.current) {
+      window.cancelAnimationFrame(animationId.current);
+    }
+    setIsAudioEnded(true);
     setIsAudioPlaying(false);
   }
 
@@ -144,6 +162,11 @@ function App() {
     setAudioSrc(url);
   }
 
+  function handleLoadedMetaData() {
+    if (audioEl.current === null) return;
+    setDuration(audioEl.current.duration);
+  }
+
   return (
     <main className={styles.main}>
       {audioSrc ? (
@@ -153,6 +176,7 @@ function App() {
             ref={audioEl}
             src={audioSrc}
             onLoadedData={handleLoadedData}
+            onLoadedMetadata={handleLoadedMetaData}
           />
           <Visualiser
             visualiserType={selectedVisualiser}
@@ -174,6 +198,10 @@ function App() {
             gainNode={gainNode.current}
             selectedVisualiser={selectedVisualiser}
             handleVisualiserChange={handleVisualiserChange}
+            animationId={animationId}
+            audioEl={audioEl.current}
+            duration={duration}
+            isAudioEnded={isAudioEnded}
           />
           <label className={`${styles.upload} ${styles.full}`}>
             <input type="file" onChange={handleFileUpload} accept="audio/*" />

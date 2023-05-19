@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, MutableRefObject } from "react";
 import styles from "./AudioPlayer.module.css";
 import { ReactComponent as PlayIcon } from "../../assets/play.svg";
 import { ReactComponent as PauseIcon } from "../../assets/pause.svg";
@@ -7,6 +7,7 @@ import PannerMenu from "../Menu/PannerMenu/PannerMenu";
 import DistortionMenu from "../Menu/DistortionMenu/DistortionMenu";
 import FrequencyMenu from "../Menu/FrequencyMenu/FrequencyMenu";
 import VisualiserMenu from "../Menu/VisualizerMenu/VisualiserMenu";
+import ProgressBar from "../ProgressBar/ProgressBar";
 
 interface IAudioPlayer {
   fileName: string;
@@ -21,6 +22,10 @@ interface IAudioPlayer {
   gainNode: GainNode | null;
   selectedVisualiser: string;
   handleVisualiserChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  animationId: MutableRefObject<number | null>;
+  audioEl: HTMLAudioElement | null;
+  duration: number;
+  isAudioEnded: boolean;
 }
 
 function AudioPlayer({
@@ -36,6 +41,10 @@ function AudioPlayer({
   gainNode,
   selectedVisualiser,
   handleVisualiserChange,
+  animationId,
+  audioEl,
+  duration,
+  isAudioEnded,
 }: IAudioPlayer) {
   return (
     <div className={styles.player}>
@@ -76,6 +85,13 @@ function AudioPlayer({
           <VolumeSlider audioContext={audioContext} gainNode={gainNode} />
         </div>
       </div>
+      <ProgressBar
+        isAudioEnded={isAudioEnded}
+        isAudioPlaying={isAudioPlaying}
+        duration={duration}
+        animationId={animationId}
+        audioEl={audioEl}
+      />
     </div>
   );
 }
